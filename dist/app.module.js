@@ -24,18 +24,22 @@ let AppModule = class AppModule {
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forRoot({
-                type: 'mysql',
-                host: 'localhost',
-                port: 3306,
-                username: 'root',
-                password: 'Qasdfghjkl123',
-                database: 'diploma-project',
-                entities: [user_entity_1.User],
-                synchronize: true,
-            }),
-            config_1.ConfigModule.forRoot({
+        imports: [config_1.ConfigModule.forRoot({
                 isGlobal: true,
+            }),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (configService) => ({
+                    type: 'mysql',
+                    host: configService.get('DB_HOST'),
+                    port: configService.get('DB_PORT'),
+                    username: configService.get('DB_USERNAME'),
+                    password: configService.get('DB_PASSWORD'),
+                    database: configService.get('DB_NAME'),
+                    entities: [user_entity_1.User],
+                    synchronize: true,
+                }),
             }),
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
             users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule],

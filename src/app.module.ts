@@ -5,25 +5,29 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersService } from './users/users.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UsersController } from './users/users.controller';
 import { BcryptService } from './bcrypt/bcrypt.service';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: '',
-    database: 'diploma-project',
-    entities: [User],
-    synchronize: true,
-  })
-  ,ConfigModule.forRoot({
-    isGlobal: true,
+  imports: [ConfigModule.forRoot({
+    isGlobal: true, 
+  }),
+  TypeOrmModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+      type: 'mysql',
+      host: configService.get<string>('DB_HOST'),
+      port: configService.get<number>('DB_PORT'),
+      username: configService.get<string>('DB_USERNAME'),
+      password: configService.get<string>('DB_PASSWORD'),
+      database: configService.get<string>('DB_NAME'),
+      entities: [User],
+      synchronize: true,
+    }),
   }),
   TypeOrmModule.forFeature([User])
   ,UsersModule, JwtModule, AuthModule],

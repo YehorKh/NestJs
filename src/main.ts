@@ -4,10 +4,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.enableCors();
+  
   const config = new DocumentBuilder()
-    .setTitle('Пример API')
-    .setDescription('Описание API')
+    .setTitle('API')
+    .setDescription('API')
     .setVersion('1.0')
     .addTag('example')
     .addBearerAuth()
