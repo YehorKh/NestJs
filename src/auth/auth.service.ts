@@ -21,7 +21,7 @@ export class AuthService {
       }
       
       
-      const payload = { sub: user.id, name: user.name,roles:user.roles, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 };
+      const payload = { id: user.id, name: user.name,roles:user.roles, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 };
       
       return {
          access_token: await this.jwtService.signAsync(payload, { secret: this.configService.get<string>('JWT_SECRET') }),

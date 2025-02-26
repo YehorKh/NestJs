@@ -14,6 +14,7 @@ import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
 import { Product } from './products/entities/product.entity';
 import { CartItem } from './cart/entities/cart.entity';
+import { CartService } from './cart/cart.service';
 
 
 @Module({
@@ -37,6 +38,6 @@ import { CartItem } from './cart/entities/cart.entity';
   TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),
   UsersModule, JwtModule, AuthModule, ProductsModule, CartModule],
   controllers: [AppController,UsersController],
-  providers: [AppService,UsersService,JwtService,BcryptService],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService],
 })
 export class AppModule {}

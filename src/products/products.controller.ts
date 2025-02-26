@@ -2,19 +2,20 @@ import { Controller, Get, Post, Body, Param, Query, Patch, Delete } from '@nestj
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { FilterProductsDto } from './dto/filter-product.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
 
-    @Get()
-    async getFilteredProducts(
-      @Query('search') search?: string,
-      @Query('minPrice') minPrice?: number,
-      @Query('maxPrice') maxPrice?: number,
-      @Query('category') category?: string,
-    ) {
-      return this.productsService.getFilteredProducts(search, minPrice, maxPrice, category);
+    @Get('filter')
+    @ApiQuery({ name: 'search', required: false, type: String})
+    @ApiQuery({ name: 'minPrice', required: false, type: Number })
+    @ApiQuery({ name: 'maxPrice', required: false, type: Number })
+    @ApiQuery({ name: 'category', required: false, type: String })
+    async getFilteredProducts(@Query() filterDto: FilterProductsDto) {
+      return this.productsService.getFilteredProducts(filterDto.search, filterDto.minPrice, filterDto.maxPrice, filterDto.category);
     }
 
     @Post()

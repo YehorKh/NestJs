@@ -30,6 +30,6 @@ import { BcryptService } from 'src/bcrypt/bcrypt.service';
   ],
   controllers: [AuthController],
   providers: [AuthService,UsersService,JwtService,BcryptService],
-  exports: [AuthService]
+  exports: [AuthService,JwtModule]
 })
 export class AuthModule {}
