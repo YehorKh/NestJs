@@ -19,6 +19,10 @@ const users_service_1 = require("./users/users.service");
 const jwt_1 = require("@nestjs/jwt");
 const users_controller_1 = require("./users/users.controller");
 const bcrypt_service_1 = require("./bcrypt/bcrypt.service");
+const products_module_1 = require("./products/products.module");
+const cart_module_1 = require("./cart/cart.module");
+const product_entity_1 = require("./products/entities/product.entity");
+const cart_entity_1 = require("./cart/entities/cart.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,12 +41,12 @@ exports.AppModule = AppModule = __decorate([
                     username: configService.get('DB_USERNAME'),
                     password: configService.get('DB_PASSWORD'),
                     database: configService.get('DB_NAME'),
-                    entities: [user_entity_1.User],
+                    entities: [user_entity_1.User, product_entity_1.Product, cart_entity_1.CartItem],
                     synchronize: true,
                 }),
             }),
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
-            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule],
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]),
+            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule],
         controllers: [app_controller_1.AppController, users_controller_1.UsersController],
         providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService],
     })
