@@ -24,6 +24,13 @@ const cart_module_1 = require("./cart/cart.module");
 const product_entity_1 = require("./products/entities/product.entity");
 const cart_entity_1 = require("./cart/entities/cart.entity");
 const cart_service_1 = require("./cart/cart.service");
+const product_images_entity_1 = require("./products/entities/product-images.entity");
+const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
+const upload_controller_1 = require("./upload/upload.controller");
+const cloudinary_service_1 = require("./cloudinary/cloudinary.service");
+const upload_service_1 = require("./upload/upload.service");
+const product_image_service_1 = require("./products/product-image/product-image.service");
+const upload_module_1 = require("./upload/upload.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,14 +49,14 @@ exports.AppModule = AppModule = __decorate([
                     username: configService.get('DB_USERNAME'),
                     password: configService.get('DB_PASSWORD'),
                     database: configService.get('DB_NAME'),
-                    entities: [user_entity_1.User, product_entity_1.Product, cart_entity_1.CartItem],
+                    entities: [user_entity_1.User, product_entity_1.Product, cart_entity_1.CartItem, product_images_entity_1.ProductImage],
                     synchronize: true,
                 }),
             }),
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]),
-            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule],
-        controllers: [app_controller_1.AppController, users_controller_1.UsersController],
-        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService],
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]), typeorm_1.TypeOrmModule.forFeature([product_images_entity_1.ProductImage]),
+            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, cloudinary_module_1.CloudinaryModule, upload_module_1.UploadModule],
+        controllers: [app_controller_1.AppController, users_controller_1.UsersController, upload_controller_1.UploadController],
+        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, cloudinary_service_1.CloudinaryService, upload_service_1.UploadService, product_image_service_1.ProductImageService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

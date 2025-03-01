@@ -3,11 +3,17 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FilterProductsDto } from './dto/filter-product.dto';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { AddProductImagesDto } from './dto/add-product-images.dto';
 
 @Controller('products')
 export class ProductsController {
     constructor(private readonly productsService: ProductsService) {}
+
+    @Post(':id/images')
+    async addImages(@Param('id') id: number, @Body() dto: AddProductImagesDto) {
+      return this.productsService.addProductImages(id, dto);
+    }
 
     @Get('filter')
     @ApiQuery({ name: 'search', required: false, type: String})

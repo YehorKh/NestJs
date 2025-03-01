@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ProductImage } from './product-images.entity';
 
 @Entity()
 export class Product {
@@ -26,4 +27,7 @@ export class Product {
     @ApiProperty()
     @Column()
     stock:number
+
+    @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
+    images: ProductImage[];
 }

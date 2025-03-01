@@ -15,6 +15,16 @@ import { CartModule } from './cart/cart.module';
 import { Product } from './products/entities/product.entity';
 import { CartItem } from './cart/entities/cart.entity';
 import { CartService } from './cart/cart.service';
+import { ProductImage } from './products/entities/product-images.entity';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { UploadController } from './upload/upload.controller';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { UploadService } from './upload/upload.service';
+import { ProductImageService } from './products/product-image/product-image.service';
+import { UploadModule } from './upload/upload.module';
+
+
+
 
 
 @Module({
@@ -31,13 +41,14 @@ import { CartService } from './cart/cart.service';
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
-      entities: [User,Product,CartItem],
+      entities: [User,Product,CartItem,ProductImage],
       synchronize: true,
     }),
   }),
-  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule],
-  controllers: [AppController,UsersController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService],
+  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, CloudinaryModule, UploadModule],
+  controllers: [AppController,UsersController, UploadController],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,CloudinaryService, UploadService,ProductImageService],
+  
 })
 export class AppModule {}
