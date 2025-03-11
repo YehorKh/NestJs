@@ -22,8 +22,10 @@ import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { UploadService } from './upload/upload.service';
 import { ProductImageService } from './products/product-image/product-image.service';
 import { UploadModule } from './upload/upload.module';
+import { MinioModule } from 'nestjs-minio-client';
 
-
+import { ContentService } from './content/content.service';
+import { PaymentsModule } from './payments/payments.module';
 
 
 
@@ -45,10 +47,25 @@ import { UploadModule } from './upload/upload.module';
       synchronize: true,
     }),
   }),
+  ConfigModule,
+  MinioModule.registerAsync({
+    imports: [ConfigModule], 
+    useFactory: async (configService: ConfigService) => ({
+    endPoint: configService.get<string>('minio_url'),
+    port: 9000,
+    useSSL: false,
+    accessKey: configService.get<string>('minio_access_key'),
+    secretKey: configService.get<string>('minio_secret_key')
+    }),
+    inject: [ConfigService],
+  }),
+
+  PaymentsModule,
+
   TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, CloudinaryModule, UploadModule],
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, CloudinaryModule, UploadModule, PaymentsModule],
   controllers: [AppController,UsersController, UploadController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService,CloudinaryService, UploadService,ProductImageService],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,CloudinaryService, UploadService,ProductImageService, ContentService],
   
 })
 export class AppModule {}

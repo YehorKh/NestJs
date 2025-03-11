@@ -31,6 +31,9 @@ const cloudinary_service_1 = require("./cloudinary/cloudinary.service");
 const upload_service_1 = require("./upload/upload.service");
 const product_image_service_1 = require("./products/product-image/product-image.service");
 const upload_module_1 = require("./upload/upload.module");
+const nestjs_minio_client_1 = require("nestjs-minio-client");
+const content_service_1 = require("./content/content.service");
+const payments_module_1 = require("./payments/payments.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -53,10 +56,23 @@ exports.AppModule = AppModule = __decorate([
                     synchronize: true,
                 }),
             }),
+            config_1.ConfigModule,
+            nestjs_minio_client_1.MinioModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    endPoint: configService.get('minio_url'),
+                    port: 9000,
+                    useSSL: false,
+                    accessKey: configService.get('minio_access_key'),
+                    secretKey: configService.get('minio_secret_key')
+                }),
+                inject: [config_1.ConfigService],
+            }),
+            payments_module_1.PaymentsModule,
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]), typeorm_1.TypeOrmModule.forFeature([product_images_entity_1.ProductImage]),
-            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, cloudinary_module_1.CloudinaryModule, upload_module_1.UploadModule],
+            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, cloudinary_module_1.CloudinaryModule, upload_module_1.UploadModule, payments_module_1.PaymentsModule],
         controllers: [app_controller_1.AppController, users_controller_1.UsersController, upload_controller_1.UploadController],
-        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, cloudinary_service_1.CloudinaryService, upload_service_1.UploadService, product_image_service_1.ProductImageService],
+        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, cloudinary_service_1.CloudinaryService, upload_service_1.UploadService, product_image_service_1.ProductImageService, content_service_1.ContentService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

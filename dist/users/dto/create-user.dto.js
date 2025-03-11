@@ -16,25 +16,25 @@ class CreateUserDto {
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'John Doe', description: 'Имя пользователя' }),
+    (0, swagger_1.ApiProperty)({ example: 'user' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'user@example.com', description: 'Email пользователя' }),
+    (0, swagger_1.ApiProperty)({ example: 'user@example.com' }),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'password', description: 'Пароль (мин. 6 символов)' }),
+    (0, swagger_1.ApiProperty)({ example: 'password' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: ['admin', 'user'], description: 'Роли пользователя', required: false }),
+    (0, swagger_1.ApiProperty)({ example: ['admin', 'user'], required: false }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreateUserDto.prototype, "roles", void 0);
