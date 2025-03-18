@@ -1,0 +1,42 @@
+#перед началом установить докер на тест сервth и прод, сгенерировать ключи и создать переменные с приват ключами в gitlab
+stages:
+    - build 
+    - test
+
+build-docker-front:
+    stage: build
+    image: docker:stable
+    only:
+        - master
+    services:
+        - docker:dind
+    before_script:
+        - docker login -u ${ACCESS_TOKEN_LOGIN} -p ${ACCESS_TOKEN_PASS} registry.gametech.ua
+    script:
+        - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} --build-arg branch=${CI_COMMIT_REF_NAME}  .
+        - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} 
+ 
+test-docker:
+    stage: test
+    image: alpine:latest
+    only:
+        - master
+    before_script:
+    # Установка openssh
+    - apk add --no-cache openssh
+    # Создание директории .ssh
+    - mkdir -p /root/.ssh
+    # Настройка приватного ключа для SSH
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > /root/.ssh/id_rsa
+    - chmod 600 /root/.ssh/id_rsa
+    # Добавление хоста удаленного сервера в known_hosts
+    - ssh-keyscan -H ${PROD_SERVER_HOST} >> /root/.ssh/known_hosts
+    script:
+    # Логин в Docker Registry на удаленном сервере
+    - ssh -i /root/.ssh/id_rsa user@${PROD_SERVER_HOST} "docker login -u ${ACCESS_TOKEN_LOGIN} -p ${ACCESS_TOKEN_PASS} registry.gametech.ua"
+    # Удаление контейнера (если он существует) 
+    #- ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker stop gametech || true"
+    #- ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker rm gametech || true"
+    #- ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker rmi ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} || true"  
+    # Pull Docker образа с реестра на удаленный сервер 
+    - ssh -i /root/.ssh/id_rsa user@${PROD_SERVER_HOST} "docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
