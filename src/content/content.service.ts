@@ -6,16 +6,31 @@ import { warn } from 'console';
 export class ContentService {
    constructor(private readonly minioService: MinioService) {}
 
-  async uploadFile(bucket: string, file: Express.Multer.File) {
-   const fileName = `${Date.now()}-${file.originalname}`; 
-   await this.minioService.client.putObject(bucket, fileName, file.buffer);
-   
-   return {
-     message: 'Файл загружен',
-     url: await this.getFileUrl(bucket, fileName),
-   };
+
+   async createBucket(bucketName: string) {
+    try {
+      const bucketExists = await this.minioService.client.bucketExists(bucketName);
+      if (!bucketExists) {
+        await this.minioService.client.makeBucket(bucketName, 'us-east-1'); // Укажи регион, если нужно
+        console.log(`Bucket "${bucketName}" успешно создан.`);
+      } else {
+        console.log(`Bucket "${bucketName}" уже существует.`);
+      }
+    } catch (error) {
+      console.error('Ошибка при создании bucket:', error);
+      throw error;
+    }
   }
-  async getFileUrl(bucket: string, fileName: string) {
-   return this.minioService.client.presignedUrl('GET', bucket, fileName, 60 * 60);
- }
+
+   async uploadFile(bucketName: string, file: Express.Multer.File) {
+    //const bucketExists = await this.minioService.client.bucketExists(bucketName);
+    //await this.createBucket('113');
+    const fileName = `${Date.now()}-${file.originalname}`;
+  
+    await this.minioService.client.putObject(bucketName, fileName, file.buffer, file.size, {
+      'Content-Type': file.mimetype,
+    });
+  
+    return { url: `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}/${bucketName}/${fileName}` };
+  }
 }

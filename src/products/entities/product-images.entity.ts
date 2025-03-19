@@ -16,7 +16,4 @@ export class ProductImage {
   @ApiProperty()
   imageUrl: string;
 
-  @CreateDateColumn()
-  @ApiProperty()
-  createdAt: Date;
 }

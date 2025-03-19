@@ -1,33 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 import { ProductImage } from './product-images.entity';
+import { Category } from 'src/category/entities/category.entity';
+import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
 
 @Entity()
 export class Product {
-   @ApiProperty()
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
+  @ApiProperty()
+  @Column()
+  name: string;
+  
+  @ApiProperty()
+  @Column('decimal', { precision: 10, scale: 2 })
+  price: number;
 
-    @ApiProperty()
-    @Column()
-    name: string;
+  @ApiProperty()
+  @ManyToOne(() => Category, (category) => category.id)
+  category: Category;
 
-    @ApiProperty()
-    @Column()
-    price: number;
+  @ApiProperty()
+  @OneToMany(() => ProductAttributeValue, (pav) => pav.product)
+  attributeValue: ProductAttributeValue[];
 
-    @ApiProperty()
-    @Column()
-    description: string;
-
-    @ApiProperty()
-    @Column()
-    category: string;
-
-    @ApiProperty()
-    @Column()
-    stock:number
-
-    @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
+  @ApiProperty()
+  @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
     images: ProductImage[];
 }

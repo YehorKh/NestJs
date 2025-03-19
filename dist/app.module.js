@@ -34,6 +34,15 @@ const upload_module_1 = require("./upload/upload.module");
 const nestjs_minio_client_1 = require("nestjs-minio-client");
 const content_service_1 = require("./content/content.service");
 const payments_module_1 = require("./payments/payments.module");
+const attribute_module_1 = require("./attribute/attribute.module");
+const category_module_1 = require("./category/category.module");
+const category_entity_1 = require("./category/entities/category.entity");
+const attribute_entity_1 = require("./attribute/entities/attribute.entity");
+const product_attribute_value_entity_1 = require("./product-attribute-value/entities/product-attribute-value.entity");
+const category_attribute_entity_1 = require("./category-attribute/entities/category-attribute.entity");
+const product_attribute_value_service_1 = require("./product-attribute-value/product-attribute-value.service");
+const product_attribute_value_controller_1 = require("./product-attribute-value/product-attribute-value.controller");
+const product_attribute_value_module_1 = require("./product-attribute-value/product-attribute-value.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -52,7 +61,7 @@ exports.AppModule = AppModule = __decorate([
                     username: configService.get('DB_USERNAME'),
                     password: configService.get('DB_PASSWORD'),
                     database: configService.get('DB_NAME'),
-                    entities: [user_entity_1.User, product_entity_1.Product, cart_entity_1.CartItem, product_images_entity_1.ProductImage],
+                    entities: [user_entity_1.User, product_entity_1.Product, cart_entity_1.CartItem, product_images_entity_1.ProductImage, category_entity_1.Category, attribute_entity_1.Attribute, product_attribute_value_entity_1.ProductAttributeValue, category_attribute_entity_1.CategoryAttribute],
                     synchronize: true,
                 }),
             }),
@@ -60,19 +69,20 @@ exports.AppModule = AppModule = __decorate([
             nestjs_minio_client_1.MinioModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({
-                    endPoint: configService.get('minio_url'),
-                    port: 9000,
+                    endPoint: configService.get('MINIO_URL'),
+                    port: 80,
+                    region: 'us-east-1',
                     useSSL: false,
-                    accessKey: configService.get('minio_access_key'),
-                    secretKey: configService.get('minio_secret_key')
+                    accessKey: configService.get('MINIO_ACCESS_KEY'),
+                    secretKey: configService.get('MINIO_SECRET_KEY')
                 }),
                 inject: [config_1.ConfigService],
             }),
             payments_module_1.PaymentsModule,
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]), typeorm_1.TypeOrmModule.forFeature([product_images_entity_1.ProductImage]),
-            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, cloudinary_module_1.CloudinaryModule, upload_module_1.UploadModule, payments_module_1.PaymentsModule],
-        controllers: [app_controller_1.AppController, users_controller_1.UsersController, upload_controller_1.UploadController],
-        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, cloudinary_service_1.CloudinaryService, upload_service_1.UploadService, product_image_service_1.ProductImageService, content_service_1.ContentService],
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]), typeorm_1.TypeOrmModule.forFeature([product_images_entity_1.ProductImage]), typeorm_1.TypeOrmModule.forFeature([attribute_entity_1.Attribute]), typeorm_1.TypeOrmModule.forFeature([product_attribute_value_entity_1.ProductAttributeValue]), typeorm_1.TypeOrmModule.forFeature([category_entity_1.Category]), typeorm_1.TypeOrmModule.forFeature([category_attribute_entity_1.CategoryAttribute]),
+            users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, cloudinary_module_1.CloudinaryModule, upload_module_1.UploadModule, payments_module_1.PaymentsModule, attribute_module_1.AttributeModule, category_module_1.CategoryModule, product_attribute_value_module_1.ProductAttributeValueModule],
+        controllers: [app_controller_1.AppController, users_controller_1.UsersController, upload_controller_1.UploadController, product_attribute_value_controller_1.ProductAttributeValueController],
+        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, cloudinary_service_1.CloudinaryService, upload_service_1.UploadService, product_image_service_1.ProductImageService, content_service_1.ContentService, product_attribute_value_service_1.ProductAttributeValueService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

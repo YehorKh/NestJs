@@ -6,6 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductImage } from './entities/product-images.entity';
 import { AddProductImagesDto } from './dto/add-product-images.dto';
+import { warn } from 'console';
 
 @Injectable()
 export class ProductsService {
@@ -14,70 +15,38 @@ export class ProductsService {
         @InjectRepository(ProductImage) private imageRepository: Repository<ProductImage>,
         
     ) {}
+    
+    findAll(): Promise<Product[]> {
+      return this.productRepository.find({ relations: ['attributeValue','category','images' ] });
+    }
+  
+    findOne(id: number): Promise<Product> {
+      return this.productRepository.findOne({ where: { id: id }, relations: ['category', 'attributeValue'] });
+    }
+  
+    create(product: Partial<Product>): Promise<Product> {
+      return this.productRepository.save(product);
+    }
+  
+    async update(id: number, product: Partial<Product>): Promise<Product> {
+      await this.productRepository.update(id, product);
+      return this.productRepository.findOne({ where: { id: id } });
+    }
+  
+    async remove(id: number): Promise<void> {
+      await this.productRepository.delete(id);
+    }
     async addProductImages(productId: number, dto: AddProductImagesDto): Promise<Product> {
       const product = await this.productRepository.findOne({ where: { id: productId }, relations: ['images'] });
-  
+    
       if (!product) {
         throw new NotFoundException('Product not found');
       }
-  
+    
       const images = dto.images.map((url) => this.imageRepository.create({ product, imageUrl: url }));
       await this.imageRepository.save(images);
-  
+    
       product.images.push(...images);
       return product;
     }
-    
-    async getFilteredProducts(
-        search?: string, 
-        minPrice?: number, 
-        maxPrice?: number, 
-        category?: string
-      ) {
-        const query = this.productRepository.createQueryBuilder('product');
-    
-        if (search) {
-          query.andWhere('LOWER(product.name) LIKE LOWER(:search)', { search: `%${search}%` });
-        }
-    
-        if (minPrice) {
-          query.andWhere('product.price >= :minPrice', { minPrice });
-        }
-    
-        if (maxPrice) {
-          query.andWhere('product.price <= :maxPrice', { maxPrice });
-        }
-    
-        if (category) {
-          query.andWhere('product.category = :category', { category });
-        }
-    
-        return query.getMany();
-      }
-      async create(createProductDto: CreateProductDto): Promise<Product> {
-        const product = this.productRepository.create(createProductDto);
-        return this.productRepository.save(product);
-      }
-    
-      async findAll(): Promise<Product[]> {
-        return this.productRepository.find();
-      }
-      async findOne(id: number): Promise<Product> {
-        const product =await this.productRepository.findOne({ where: { id }, relations: ['images'] });
-        if (!product) {
-          throw new NotFoundException(`Product with id ${id} not found`);
-        }
-        return product;
-      }
-    
-      async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
-        const product = await this.findOne(id);
-        Object.assign(product, updateProductDto);
-        return this.productRepository.save(product);
-      }
-    
-      async remove(id: number): Promise<void> {
-        const product = await this.findOne(id);
-        await this.productRepository.remove(product);
-      }
-}
+  }

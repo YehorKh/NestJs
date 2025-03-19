@@ -21,7 +21,6 @@ export class UploadController {
  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(productId:number,@UploadedFile() file: Express.Multer.File) {
-    
       return this.uploadService.uploadFile(productId,file);
   }
 }
