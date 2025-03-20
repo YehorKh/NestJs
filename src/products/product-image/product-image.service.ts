@@ -18,8 +18,9 @@ export class ProductImageService {
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
-
-    const newImage = this.productImageRepository.create({ imageUrl, product });
+    const numer = Math.max(...product.images.map(img => img.numer)) +1;
+    
+    const newImage = this.productImageRepository.create({ imageUrl, product, numer});
     return this.productImageRepository.save(newImage);
   }
 

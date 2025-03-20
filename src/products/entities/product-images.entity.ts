@@ -16,4 +16,8 @@ export class ProductImage {
   @ApiProperty()
   imageUrl: string;
 
+  @Column()
+  @ApiProperty()
+  numer: number;
+
 }
