@@ -1,12 +1,11 @@
 import { Controller, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { UploadService } from './upload.service';
 import { warn } from 'console';
 @Controller('upload')
 export class UploadController {
-  constructor(private readonly cloudinaryService: CloudinaryService,private readonly uploadService: UploadService) {}
+  constructor(private readonly uploadService: UploadService) {}
 
   @Post()
   @ApiConsumes('multipart/form-data')

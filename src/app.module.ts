@@ -16,9 +16,8 @@ import { Product } from './products/entities/product.entity';
 import { CartItem } from './cart/entities/cart.entity';
 import { CartService } from './cart/cart.service';
 import { ProductImage } from './products/entities/product-images.entity';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
+
 import { UploadController } from './upload/upload.controller';
-import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { UploadService } from './upload/upload.service';
 import { ProductImageService } from './products/product-image/product-image.service';
 import { UploadModule } from './upload/upload.module';
@@ -38,6 +37,10 @@ import { MinioService } from 'nestjs-minio-client';
 import { ProductAttributeValueService } from './product-attribute-value/product-attribute-value.service';
 import { ProductAttributeValueController } from './product-attribute-value/product-attribute-value.controller';
 import { ProductAttributeValueModule } from './product-attribute-value/product-attribute-value.module';
+import { CategoryImageService } from './category-image/category-image.service';
+import { CategoryImageModule } from './category-image/category-image.module';
+import { CategoryImage } from './category-image/entity/category-image.entity';
+import { CategoryImageController } from './category-image/category-image.controller';
 
 
 
@@ -55,7 +58,7 @@ import { ProductAttributeValueModule } from './product-attribute-value/product-a
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
-      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute],
+      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage],
       synchronize: true,
     }),
   }),
@@ -75,10 +78,10 @@ import { ProductAttributeValueModule } from './product-attribute-value/product-a
 
   PaymentsModule,
 
-  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, CloudinaryModule, UploadModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule],
-  controllers: [AppController,UsersController, UploadController, ProductAttributeValueController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService,CloudinaryService, UploadService,ProductImageService, ContentService, ProductAttributeValueService],
+  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, UploadModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule],
+  controllers: [AppController,UsersController, UploadController, ProductAttributeValueController,CategoryImageController],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService, UploadService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService],
   
 })
 export class AppModule {}

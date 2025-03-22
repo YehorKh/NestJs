@@ -23,14 +23,12 @@ export class ContentService {
   }
 
    async uploadFile(bucketName: string, file: Express.Multer.File) {
-    //const bucketExists = await this.minioService.client.bucketExists(bucketName);
-    //await this.createBucket('113');
     const fileName = `${Date.now()}-${file.originalname}`;
   
     await this.minioService.client.putObject(bucketName, fileName, file.buffer, file.size, {
       'Content-Type': file.mimetype,
     });
   
-    return { url: `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}/${bucketName}/${fileName}` };
+    return { url: `http://${process.env.MINIO_URL}:${process.env.MINIO_PORT}/${bucketName}/${fileName}` };
   }
 }
