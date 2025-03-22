@@ -21,7 +21,6 @@ test-docker:
     image: alpine:latest
     only:
         - master 
-    when: manual
     before_script:
     # Установка openssh
     - apk add --no-cache openssh
