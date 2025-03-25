@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UploadedFile } from '@nestjs/common';
 import { ok } from 'assert';
 import { warn } from 'console';
-import { ProductImageService } from 'src/products/product-image/product-image.service';
+import { ProductImageService } from 'src/product-image/product-image.service';
 import { ContentService } from 'src/content/content.service';
 import { Client } from 'minio';
 @Injectable()

@@ -19,7 +19,7 @@ import { ProductImage } from './products/entities/product-images.entity';
 
 import { UploadController } from './upload/upload.controller';
 import { UploadService } from './upload/upload.service';
-import { ProductImageService } from './products/product-image/product-image.service';
+import { ProductImageService } from './product-image/product-image.service';
 import { UploadModule } from './upload/upload.module';
 import { MinioModule } from 'nestjs-minio-client';
 
@@ -41,6 +41,7 @@ import { CategoryImageService } from './category-image/category-image.service';
 import { CategoryImageModule } from './category-image/category-image.module';
 import { CategoryImage } from './category-image/entity/category-image.entity';
 import { CategoryImageController } from './category-image/category-image.controller';
+import { ProductImageController } from './product-image/product-image.controller';
 
 
 
@@ -80,7 +81,7 @@ import { CategoryImageController } from './category-image/category-image.control
 
   TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),
   UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, UploadModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule],
-  controllers: [AppController,UsersController, UploadController, ProductAttributeValueController,CategoryImageController],
+  controllers: [AppController,UsersController, UploadController, ProductAttributeValueController,CategoryImageController, ProductImageController],
   providers: [AppService,UsersService,JwtService,BcryptService,CartService, UploadService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService],
   
 })

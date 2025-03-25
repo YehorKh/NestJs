@@ -26,5 +26,5 @@ export class Product {
 
   @ApiProperty()
   @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
-    images: ProductImage[];
+  images: ProductImage[];
 }

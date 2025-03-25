@@ -11,7 +11,7 @@ export class ContentService {
     try {
       const bucketExists = await this.minioService.client.bucketExists(bucketName);
       if (!bucketExists) {
-        await this.minioService.client.makeBucket(bucketName, 'us-east-1'); // Укажи регион, если нужно
+        await this.minioService.client.makeBucket(bucketName, 'us-east-1'); 
         console.log(`Bucket "${bucketName}" успешно создан.`);
       } else {
         console.log(`Bucket "${bucketName}" уже существует.`);
