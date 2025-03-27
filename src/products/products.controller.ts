@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Patch, Delete, Put, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch, Delete, Put, UseInterceptors, UploadedFile, BadRequestException, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -32,9 +32,24 @@ export class ProductsController {
   example: '{"ram":["16 Gb","32 Gb"],"color":["Black","White"],"gpu":["GeForce RTX 3080","GeForce RTX 4060"]}',
   description: 'JSON-строка с атрибутами фильтрации массивы значений для каждого атрибута.' 
 })
+@ApiQuery({
+  name: 'page',
+  required: false,
+  type: Number,
+  example: 1,
+})
+@ApiQuery({
+  name: 'limit',
+  required: false,
+  type: Number,
+  example: 10,
+  description: 'Количество элементов на странице'
+})
 async filterProducts(
   @Query('category') category: string,
-  @Query('attributes') attributes?: string 
+  @Query('attributes') attributes?: string ,
+  @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+  @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 1
 ) {
   try {
     const parsedAttributes = attributes ? JSON.parse(attributes) : {};
@@ -49,7 +64,7 @@ async filterProducts(
       }
     }
 
-    return this.productsService.filterProducts(category, normalizedAttributes);
+    return this.productsService.filterProducts(category, normalizedAttributes,page,limit);
   } catch (error) {
     throw new BadRequestException('Неверный формат параметра attributes. Ожидается JSON-строка.');
   }

@@ -20,75 +20,89 @@ export class ProductsService {
     async filterProducts(
       categoryName: string,
       attributes: Record<string, string[]>,
-      offset?: number,
-      limit?: number
+      page: number = 1,
+      limit: number = 10
     ) {
-      const query = this.productRepository.createQueryBuilder('product')
-          .leftJoin('product.category', 'category')
-          .leftJoin('product.attributeValue', 'pav')
-          .leftJoin('pav.attribute', 'attribute')
-          .leftJoin('product.images', 'pi')
-          .select([
-              'product.id AS product_id',
-              'product.name AS product_name',
-              'product.price AS product_price',
-              'category.id AS category_id',
-              'category.category_name AS category_name',
-              "JSON_ARRAYAGG(JSON_OBJECT('attribute_name', attribute.attribute_name, 'value', pav.value)) AS attributes",
-              `COALESCE(
-                  (
-                      SELECT JSON_ARRAYAGG(
-                          JSON_OBJECT('id', pi.id, 'imageUrl', pi.imageUrl, 'numer', pi.numer)
-                      )
-                      FROM product_image pi
-                      WHERE pi.productId = product.id
-                      GROUP BY pi.productId
-                  ), JSON_ARRAY()
-              ) AS images`
-          ])
-          .where('category.category_name = :categoryName', { categoryName });
-  
-      const attributeConditions = [];
-      const parameters = {};
-      
-      Object.entries(attributes).forEach(([name, values], attrIndex) => {
-          const valuesArray = Array.isArray(values) ? values : [values];
-          
-          valuesArray.forEach((value, valIndex) => {
-              const paramName = `attr_${attrIndex}_${valIndex}`;
-              attributeConditions.push(`(attribute.attribute_name = :name_${paramName} AND pav.value = :value_${paramName})`);
-              parameters[`name_${paramName}`] = name;
-              parameters[`value_${paramName}`] = value;
-          });
+      const countQuery = this.productRepository.createQueryBuilder('product')
+        .leftJoin('product.category', 'category')
+        .where('category.category_name = :categoryName', { categoryName });
+    
+      const dataQuery = this.productRepository.createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.attributeValue', 'pav')
+        .leftJoinAndSelect('pav.attribute', 'attribute')
+        .leftJoinAndSelect('product.images', 'images')
+        .where('category.category_name = :categoryName', { categoryName });
+    
+      Object.entries(attributes).forEach(([name, values]) => {
+        const valuesArray = Array.isArray(values) ? values : [values];
+        const paramName = `${name}_values`;
+    
+        const attributeCondition = `EXISTS (
+          SELECT 1 FROM product_attribute_value pav
+          JOIN attribute a ON pav.attributeId = a.id
+          WHERE pav.productId = product.id
+          AND a.attribute_name = :${name}_name
+          AND pav.value IN (:...${paramName})
+        )`;
+    
+        countQuery.andWhere(attributeCondition, {
+          [`${name}_name`]: name,
+          [paramName]: valuesArray
+        });
+    
+        dataQuery.andWhere(attributeCondition, {
+          [`${name}_name`]: name,
+          [paramName]: valuesArray
+        });
       });
-  
-      if (attributeConditions.length > 0) {
-          const attributeNames = Object.keys(attributes);
-          attributeNames.forEach((name, index) => {
-              const attrValues = Array.isArray(attributes[name]) 
-                  ? attributes[name] 
-                  : [attributes[name]];
-              
-              const subQuery = this.productRepository.createQueryBuilder(`prod_${index}`)
-                  .leftJoin(`prod_${index}.attributeValue`, `pav_${index}`)
-                  .leftJoin(`pav_${index}.attribute`, `attr_${index}`)
-                  .where(`prod_${index}.id = product.id`)
-                  .andWhere(`attr_${index}.attribute_name = :attr_name_${index}`)
-                  .andWhere(`pav_${index}.value IN (:...attr_values_${index})`)
-                  .getQuery();
-  
-              query.andWhere(`EXISTS (${subQuery})`);
-              parameters[`attr_name_${index}`] = name;
-              parameters[`attr_values_${index}`] = attrValues;
-          });
-      }
-  
-      query.groupBy('product.id');
-  
-      const products = await query.setParameters(parameters).getRawMany();
-      
-      return products;
-  }
+    
+      const total = await countQuery.getCount();
+    
+      const products = await dataQuery
+        .orderBy('product.id', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit)
+        .getMany();
+    
+      const formattedProducts = products.map(product => {
+        const uniqueAttributes = [];
+        const seenAttributes = new Set();
+        
+        product.attributeValue.forEach(pav => {
+          const attrKey = `${pav.attribute.attribute_name}_${pav.value}`;
+          if (!seenAttributes.has(attrKey)) {
+            seenAttributes.add(attrKey);
+            uniqueAttributes.push({
+              attribute_name: pav.attribute.attribute_name,
+              value: pav.value
+            });
+          }
+        });
+    
+        return {
+          product_id: product.id,
+          product_name: product.name,
+          product_price: product.price,
+          category_id: product.category.id,
+          category_name: product.category.category_name,
+          attributes: uniqueAttributes,
+          images: product.images.map(image => ({
+            id: image.id,
+            imageUrl: image.imageUrl,
+            numer: image.numer
+          }))
+        };
+      });
+    
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: formattedProducts,
+      };
+    }
     findAll(): Promise<Product[]> {
       return this.productRepository.find({ relations: ['attributeValue','category','images' ] });
     }
