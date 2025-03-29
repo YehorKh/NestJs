@@ -17,12 +17,15 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("../users/entities/user.entity");
 const bcrypt_service_1 = require("../bcrypt/bcrypt.service");
+const mailer_service_1 = require("../mailer/mailer.service");
+const verification_service_1 = require("../verification/verification.service");
+const verification_entity_1 = require("../verification/entities/verification.entity");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([verification_entity_1.EmailVerification]),
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
@@ -40,7 +43,7 @@ exports.AuthModule = AuthModule = __decorate([
             }),
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService],
+        providers: [auth_service_1.AuthService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, mailer_service_1.MailerService, verification_service_1.VerificationService],
         exports: [auth_service_1.AuthService, jwt_1.JwtModule]
     })
 ], AuthModule);

@@ -24,6 +24,10 @@ export class User {
   @Column()
   password: string;
 
+  @ApiProperty()
+  @Column({ default: false })  
+  emailVerified: boolean;
+
   @OneToMany(() => CartItem, (cartItem) => cartItem.user)
   cart: CartItem[];
 }

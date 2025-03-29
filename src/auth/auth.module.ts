@@ -9,8 +9,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { BcryptService } from 'src/bcrypt/bcrypt.service';
+import { MailerService } from 'src/mailer/mailer.service';
+import { VerificationService } from 'src/verification/verification.service';
+import { EmailVerification } from 'src/verification/entities/verification.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User]),
+  imports: [TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([EmailVerification]),
   ConfigModule.forRoot({
     isGlobal: true, 
     envFilePath: '.env', 
@@ -29,7 +32,7 @@ import { BcryptService } from 'src/bcrypt/bcrypt.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService,UsersService,JwtService,BcryptService],
+  providers: [AuthService,UsersService,JwtService,BcryptService,MailerService,VerificationService],
   exports: [AuthService,JwtModule]
 })
 export class AuthModule {}

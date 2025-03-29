@@ -16,18 +16,37 @@ const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const bcrypt_service_1 = require("../bcrypt/bcrypt.service");
 const bcrypt = require("bcrypt");
+const mailer_service_1 = require("../mailer/mailer.service");
+const verification_service_1 = require("../verification/verification.service");
 let AuthService = class AuthService {
-    constructor(usersService, jwtService, bcryptService, configService) {
+    constructor(usersService, jwtService, bcryptService, configService, mailerService, verificationService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
         this.bcryptService = bcryptService;
         this.configService = configService;
+        this.mailerService = mailerService;
+        this.verificationService = verificationService;
+    }
+    async register(createUserDto) {
+        this.usersService.create(createUserDto);
+        const code = await this.verificationService.generateCode(createUserDto.email);
+        await this.mailerService.sendVerificationEmail(createUserDto.email, code);
+        return { message: 'Verification code sent to email' };
+    }
+    async verify(verifyUserDto) {
+        const isValid = await this.verificationService.verifyCode(verifyUserDto.email, verifyUserDto.code);
+        if (!isValid) {
+            return { error: 'Invalid or expired code' };
+        }
+        return { message: 'Email verified successfully! You can now log in.' };
     }
     async signIn(loginUserDto) {
         const user = await this.usersService.findOneByName(loginUserDto.name);
         if (!user || !(await bcrypt.compare(loginUserDto.password, user.password))) {
             throw new common_1.UnauthorizedException("Wrong login or password");
         }
+        if (!user.emailVerified)
+            throw new common_1.UnauthorizedException('Email not verified. Please verify your email first.');
         const payload = { id: user.id, name: user.name, roles: user.roles, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 };
         return {
             access_token: await this.jwtService.signAsync(payload, { secret: this.configService.get('JWT_SECRET') }),
@@ -40,6 +59,8 @@ exports.AuthService = AuthService = __decorate([
     __metadata("design:paramtypes", [users_service_1.UsersService,
         jwt_1.JwtService,
         bcrypt_service_1.BcryptService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        mailer_service_1.MailerService,
+        verification_service_1.VerificationService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

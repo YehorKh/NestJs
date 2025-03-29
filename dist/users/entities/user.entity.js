@@ -42,6 +42,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "emailVerified", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => cart_entity_1.CartItem, (cartItem) => cartItem.user),
     __metadata("design:type", Array)
 ], User.prototype, "cart", void 0);

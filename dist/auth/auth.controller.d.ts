@@ -1,10 +1,24 @@
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { MailerService } from 'src/mailer/mailer.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { VerifyUserDto } from './dto/verify-user.dto';
 export declare class AuthController {
     private authService;
-    constructor(authService: AuthService);
+    private readonly mailerService;
+    constructor(authService: AuthService, mailerService: MailerService);
     signIn(userLoginDto: LoginUserDto): Promise<{
         access_token: string;
     }>;
     getProfile(req: any): any;
+    register(createUserDto: CreateUserDto): Promise<{
+        message: string;
+    }>;
+    verify(verifyUserDto: VerifyUserDto): Promise<{
+        error: string;
+        message?: undefined;
+    } | {
+        message: string;
+        error?: undefined;
+    }>;
 }

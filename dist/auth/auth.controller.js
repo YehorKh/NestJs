@@ -18,15 +18,25 @@ const auth_guard_1 = require("./auth.guard");
 const auth_service_1 = require("./auth.service");
 const login_user_dto_1 = require("../users/dto/login-user.dto");
 const swagger_1 = require("@nestjs/swagger");
+const mailer_service_1 = require("../mailer/mailer.service");
+const create_user_dto_1 = require("../users/dto/create-user.dto");
+const verify_user_dto_1 = require("./dto/verify-user.dto");
 let AuthController = class AuthController {
-    constructor(authService) {
+    constructor(authService, mailerService) {
         this.authService = authService;
+        this.mailerService = mailerService;
     }
     signIn(userLoginDto) {
         return this.authService.signIn(userLoginDto);
     }
     getProfile(req) {
         return req.user;
+    }
+    register(createUserDto) {
+        return this.authService.register(createUserDto);
+    }
+    async verify(verifyUserDto) {
+        return this.authService.verify(verifyUserDto);
     }
 };
 exports.AuthController = AuthController;
@@ -47,8 +57,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Post)("register"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('verify'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [verify_user_dto_1.VerifyUserDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verify", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        mailer_service_1.MailerService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

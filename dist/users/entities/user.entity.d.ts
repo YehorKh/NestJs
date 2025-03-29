@@ -5,5 +5,6 @@ export declare class User {
     roles: string[];
     email: string;
     password: string;
+    emailVerified: boolean;
     cart: CartItem[];
 }

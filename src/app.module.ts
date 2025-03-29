@@ -17,10 +17,7 @@ import { CartItem } from './cart/entities/cart.entity';
 import { CartService } from './cart/cart.service';
 import { ProductImage } from './products/entities/product-images.entity';
 
-import { UploadController } from './upload/upload.controller';
-import { UploadService } from './upload/upload.service';
 import { ProductImageService } from './product-image/product-image.service';
-import { UploadModule } from './upload/upload.module';
 import { MinioModule } from 'nestjs-minio-client';
 
 import { ContentService } from './content/content.service';
@@ -42,6 +39,9 @@ import { CategoryImageModule } from './category-image/category-image.module';
 import { CategoryImage } from './category-image/entity/category-image.entity';
 import { CategoryImageController } from './category-image/category-image.controller';
 import { ProductImageController } from './product-image/product-image.controller';
+import { MailerService } from './mailer/mailer.service';
+import { VerificationService } from './verification/verification.service';
+import { EmailVerification } from './verification/entities/verification.entity';
 
 
 
@@ -59,7 +59,7 @@ import { ProductImageController } from './product-image/product-image.controller
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
-      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage],
+      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage,EmailVerification],
       synchronize: true,
     }),
   }),
@@ -79,10 +79,10 @@ import { ProductImageController } from './product-image/product-image.controller
 
   PaymentsModule,
 
-  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, UploadModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule],
-  controllers: [AppController,UsersController, UploadController, ProductAttributeValueController,CategoryImageController, ProductImageController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService, UploadService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService],
+  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule],
+  controllers: [AppController,UsersController, ProductAttributeValueController,CategoryImageController, ProductImageController],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService],
   
 })
 export class AppModule {}
