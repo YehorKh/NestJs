@@ -16,7 +16,7 @@ build-docker-backend:
         - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} --build-arg branch=${CI_COMMIT_REF_NAME}  .
         - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} 
  
-test-docker:
+deploy-docker:
     stage: test
     image: alpine:latest
     only:
