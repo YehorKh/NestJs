@@ -7,9 +7,12 @@ import { ProductImage } from './entities/product-images.entity';
 import { ProductImageService } from '../product-image/product-image.service';
 import { ProductImageModule } from '../product-image/product-image.module';
 import { ContentService } from 'src/content/content.service';
+import { Category } from 'src/category/entities/category.entity';
+import { Attribute } from 'src/attribute/entities/attribute.entity';
+import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([ProductImage])],
+    imports: [TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue])],
     controllers: [ProductsController],
     providers: [ProductsService],
 })

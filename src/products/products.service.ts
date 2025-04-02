@@ -8,11 +8,17 @@ import { ProductImage } from './entities/product-images.entity';
 import { AddProductImagesDto } from './dto/add-product-images.dto';
 import { warn } from 'console';
 import { ProductImageService } from '../product-image/product-image.service';
+import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
+import { Category } from 'src/category/entities/category.entity';
+import { Attribute } from 'src/attribute/entities/attribute.entity';
 @Injectable()
 export class ProductsService {
     constructor(
         @InjectRepository(Product) private readonly productRepository: Repository<Product>,
         @InjectRepository(ProductImage) private imageRepository: Repository<ProductImage>,
+        @InjectRepository(ProductAttributeValue) private productAttributeValueRepository: Repository<ProductAttributeValue>,
+        @InjectRepository(Attribute) private attributeRepository: Repository<Attribute>,
+        @InjectRepository(Category) private categoryRepository: Repository<Category>,
         
     ) {}
     
@@ -105,12 +111,201 @@ export class ProductsService {
     }
     findAll(): Promise<Product[]> {
       return this.productRepository.find({ relations: ['attributeValue','category','images' ] });
+    } 
+    async getProductById(id: number) {
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: [
+          'category',
+          'attributeValue',
+          'attributeValue.attribute',
+          'images'
+        ]
+      });
+    
+      if (!product) {
+        throw new Error('Product not found');
+      }
+    
+      const uniqueAttributes = [];
+      const seenAttributes = new Set();
+      
+      product.attributeValue.forEach(pav => {
+        const attrKey = `${pav.attribute.attribute_name}_${pav.value}`;
+        if (!seenAttributes.has(attrKey)) {
+          seenAttributes.add(attrKey);
+          uniqueAttributes.push({
+            attribute_name: pav.attribute.attribute_name,
+            value: pav.value
+          });
+        }
+      });
+    
+      return {
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.price,
+        category_id: product.category.id,
+        category_name: product.category.category_name,
+        attributes: uniqueAttributes,
+        images: product.images.map(image => ({
+          id: image.id,
+          imageUrl: image.imageUrl,
+          numer: image.numer
+        }))
+      };
     }
-  
-    findOne(id: number): Promise<Product> {
-      return this.productRepository.findOne({ where: { id: id }, relations: ['category', 'attributeValue'] });
+    async getProductByName(name: string) {
+      const product = await this.productRepository.findOne({
+        where: { name },
+        relations: [
+          'category',
+          'attributeValue',
+          'attributeValue.attribute',
+          'images'
+        ]
+      });
+    
+      if (!product) {
+        throw new Error('Product not found');
+      }
+    
+      const uniqueAttributes = [];
+      const seenAttributes = new Set();
+      
+      product.attributeValue.forEach(pav => {
+        const attrKey = `${pav.attribute.attribute_name}_${pav.value}`;
+        if (!seenAttributes.has(attrKey)) {
+          seenAttributes.add(attrKey);
+          uniqueAttributes.push({
+            attribute_name: pav.attribute.attribute_name,
+            value: pav.value
+          });
+        }
+      });
+    
+      return {
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.price,
+        category_id: product.category.id,
+        category_name: product.category.category_name,
+        attributes: uniqueAttributes,
+        images: product.images.map(image => ({
+          id: image.id,
+          imageUrl: image.imageUrl,
+          numer: image.numer
+        }))
+      };
     }
-  
+    async updateProduct(
+      id: number,
+      updateData: {
+        name?: string;
+        price?: number;
+        categoryId?: number;
+        attributes?: Array<{ attribute_name: string; value: string }>;
+        images?: Array<{ imageUrl: string; numer?: number }>;
+      }
+    ) {
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: [
+          'category',
+          'attributeValue',
+          'attributeValue.attribute',
+          'images'
+        ]
+      });
+    
+      if (!product) {
+        throw new Error('Product not found');
+      }
+    
+      if (updateData.name !== undefined) {
+        product.name = updateData.name;
+      }
+      if (updateData.price !== undefined) {
+        product.price = updateData.price;
+      }
+      if (updateData.categoryId !== undefined) {
+        product.category = await this.categoryRepository.findOneBy({ id: updateData.categoryId });
+        if (!product.category) {
+          throw new Error('Category not found');
+        }
+      }
+    
+      if (updateData.attributes !== undefined) {
+        await this.productAttributeValueRepository.delete({ product: { id } });
+    
+        for (const attr of updateData.attributes) {
+          const attribute = await this.attributeRepository.findOneBy({ attribute_name: attr.attribute_name });
+          if (!attribute) {
+            throw new Error(`Attribute ${attr.attribute_name} not found`);
+          }
+    
+          const newAttrValue = this.productAttributeValueRepository.create({
+            product,
+            attribute,
+            value: attr.value
+          });
+          await this.productAttributeValueRepository.save(newAttrValue);
+        }
+      }
+    
+      if (updateData.images !== undefined) {
+        await this.imageRepository.delete({ product: { id } });
+    
+        for (const [index, img] of updateData.images.entries()) {
+          const newImage = this.imageRepository.create({
+            product,
+            imageUrl: img.imageUrl,
+            numer: img.numer !== undefined ? img.numer : index
+          });
+          await this.imageRepository.save(newImage);
+        }
+      }
+    
+      await this.productRepository.save(product);
+    
+      const updatedProduct = await this.productRepository.findOne({
+        where: { id },
+        relations: [
+          'category',
+          'attributeValue',
+          'attributeValue.attribute',
+          'images'
+        ]
+      });
+    
+      const uniqueAttributes = [];
+      const seenAttributes = new Set();
+      
+      updatedProduct.attributeValue.forEach(pav => {
+        const attrKey = `${pav.attribute.attribute_name}_${pav.value}`;
+        if (!seenAttributes.has(attrKey)) {
+          seenAttributes.add(attrKey);
+          uniqueAttributes.push({
+            attribute_name: pav.attribute.attribute_name,
+            value: pav.value
+          });
+        }
+      });
+    
+      return {
+        product_id: updatedProduct.id,
+        product_name: updatedProduct.name,
+        product_price: updatedProduct.price,
+        category_id: updatedProduct.category.id,
+        category_name: updatedProduct.category.category_name,
+        attributes: uniqueAttributes,
+        images: updatedProduct.images.map(image => ({
+          id: image.id,
+          imageUrl: image.imageUrl,
+          numer: image.numer
+        }))
+      };
+    }
     create(product: Partial<Product>): Promise<Product> {
       return this.productRepository.save(product);
     }

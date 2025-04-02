@@ -18,15 +18,15 @@ export class ProductImageController {
              type: 'object',
              properties: {
                file: { type: 'string', format: 'binary' },
-               id: { type: 'number' },
+               productId: { type: 'number' },
              },
            },
          })
          @UseInterceptors(FileInterceptor('file'))
          async createImage(
            @UploadedFile() file: Express.Multer.File,
-           id: number,
+           productId: number,
          ) {
-           return this.productImage.create(id, file);
+           return this.productImage.create(productId, file);
          }
 }
