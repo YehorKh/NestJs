@@ -36,7 +36,7 @@ deploy-docker-backend:
     - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker login -u ${ACCESS_TOKEN_LOGIN} -p ${ACCESS_TOKEN_PASS} registry.gametech.ua"
     # Удаление контейнера (если он существует) 
     - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker stop backend" 
-    - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker rm backend
+    - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker rm backend"
     - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker rmi ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME} || true"  
     # Pull Docker образа с реестра на удаленный сервер 
     - ssh -i /root/.ssh/id_rsa dev@${PROD_SERVER_HOST} "docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
