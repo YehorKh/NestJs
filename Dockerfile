@@ -1,7 +1,7 @@
 # Use the official Node.js image as the base image
 FROM node:22-alpine
 RUN apk add --no-cache git libc6-compat
-
+RUN apk --update --no-cache add curl
 RUN npm install -g npm@latest
 RUN npm install -g typescript
 
