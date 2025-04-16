@@ -5,11 +5,14 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {BcryptService} from '../bcrypt/bcrypt.service'
+import { EmailVerification } from 'src/verification/entities/verification.entity';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(EmailVerification)
+    private verificationRepo: Repository<EmailVerification>,
     private readonly bcryptService: BcryptService
   ) {}
 
@@ -35,6 +38,7 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<void> {
+    await this.verificationRepo.delete({email:(await this.userRepository.findOne({ where: { id } })).email})
     await this.userRepository.delete(id)
   }
 }

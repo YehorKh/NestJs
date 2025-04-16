@@ -18,9 +18,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const bcrypt_service_1 = require("../bcrypt/bcrypt.service");
+const verification_entity_1 = require("../verification/entities/verification.entity");
 let UsersService = class UsersService {
-    constructor(userRepository, bcryptService) {
+    constructor(userRepository, verificationRepo, bcryptService) {
         this.userRepository = userRepository;
+        this.verificationRepo = verificationRepo;
         this.bcryptService = bcryptService;
     }
     async create(createUserDto) {
@@ -42,6 +44,7 @@ let UsersService = class UsersService {
         return await this.userRepository.findOne({ where: { id } });
     }
     async remove(id) {
+        await this.verificationRepo.delete({ email: (await this.userRepository.findOne({ where: { id } })).email });
         await this.userRepository.delete(id);
     }
 };
@@ -49,7 +52,9 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(verification_entity_1.EmailVerification)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         bcrypt_service_1.BcryptService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map
