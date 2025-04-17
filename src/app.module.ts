@@ -42,6 +42,9 @@ import { ProductImageController } from './product-image/product-image.controller
 import { MailerService } from './mailer/mailer.service';
 import { VerificationService } from './verification/verification.service';
 import { EmailVerification } from './verification/entities/verification.entity';
+import { CommentService } from './comment/comment.service';
+import { CommentModule } from './comment/comment.module';
+import { Comment } from './comment/entities/comment.entity';
 
 
 
@@ -59,7 +62,7 @@ import { EmailVerification } from './verification/entities/verification.entity';
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
-      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage,EmailVerification],
+      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage,EmailVerification,Comment],
       synchronize: true,
     }),
   }),
@@ -79,10 +82,10 @@ import { EmailVerification } from './verification/entities/verification.entity';
 
   PaymentsModule,
 
-  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule],
+  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),TypeOrmModule.forFeature([Comment]),
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule, CommentModule],
   controllers: [AppController,UsersController, ProductAttributeValueController,CategoryImageController, ProductImageController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService, CommentService],
   
 })
 export class AppModule {}

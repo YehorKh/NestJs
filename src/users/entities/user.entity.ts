@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CartItem } from 'src/cart/entities/cart.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-
+import { Comment } from 'src/comment/entities/comment.entity';
 @Entity()
 export class User {
   @ApiProperty()
@@ -30,4 +30,7 @@ export class User {
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.user)
   cart: CartItem[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[]
 }

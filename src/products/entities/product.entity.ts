@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'ty
 import { ProductImage } from './product-images.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
-
+import { Comment } from 'src/comment/entities/comment.entity';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
@@ -27,4 +27,8 @@ export class Product {
   @ApiProperty()
   @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
   images: ProductImage[];
+
+  @ApiProperty()
+  @OneToMany(() => Comment, (comment) => comment.product)
+  comments: Comment[]
 }

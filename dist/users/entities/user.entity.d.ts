@@ -1,4 +1,5 @@
 import { CartItem } from 'src/cart/entities/cart.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 export declare class User {
     id: number;
     name: string;
@@ -7,4 +8,5 @@ export declare class User {
     password: string;
     emailVerified: boolean;
     cart: CartItem[];
+    comments: Comment[];
 }

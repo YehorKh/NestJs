@@ -13,6 +13,7 @@ exports.User = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const cart_entity_1 = require("../../cart/entities/cart.entity");
 const typeorm_1 = require("typeorm");
+const comment_entity_1 = require("../../comment/entities/comment.entity");
 let User = class User {
 };
 exports.User = User;
@@ -50,6 +51,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => cart_entity_1.CartItem, (cartItem) => cartItem.user),
     __metadata("design:type", Array)
 ], User.prototype, "cart", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.user),
+    __metadata("design:type", Array)
+], User.prototype, "comments", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);
