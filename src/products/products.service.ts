@@ -11,6 +11,7 @@ import { ProductImageService } from '../product-image/product-image.service';
 import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { Attribute } from 'src/attribute/entities/attribute.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 @Injectable()
 export class ProductsService {
     constructor(
@@ -19,7 +20,7 @@ export class ProductsService {
         @InjectRepository(ProductAttributeValue) private productAttributeValueRepository: Repository<ProductAttributeValue>,
         @InjectRepository(Attribute) private attributeRepository: Repository<Attribute>,
         @InjectRepository(Category) private categoryRepository: Repository<Category>,
-        
+        @InjectRepository(Comment) private commentRepository: Repository<Comment>,
     ) {}
     
 
@@ -27,18 +28,40 @@ export class ProductsService {
       categoryName: string,
       attributes: Record<string, string[]>,
       page: number = 1,
-      limit: number = 10
+      limit: number = 10,
+      searchQuery?: string,
+      minPrice?: number,
+      maxPrice?: number
     ) {
-      const countQuery = this.productRepository.createQueryBuilder('product')
-        .leftJoin('product.category', 'category')
-        .where('category.category_name = :categoryName', { categoryName });
+      // Проверка: использовать ли searchQuery как категорию
+      if (!categoryName && searchQuery) {
+        const categoryMatch = await this.categoryRepository.findOne({
+          where: { category_name: searchQuery },
+        });
+        if (categoryMatch) {
+          categoryName = categoryMatch.category_name;
+          searchQuery = undefined;
+        }
+      }
     
       const dataQuery = this.productRepository.createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.attributeValue', 'pav')
         .leftJoinAndSelect('pav.attribute', 'attribute')
         .leftJoinAndSelect('product.images', 'images')
-        .where('category.category_name = :categoryName', { categoryName });
+        .leftJoinAndSelect('product.comments', 'comments');
+    
+      if (categoryName) {
+        dataQuery.where('category.category_name = :categoryName', { categoryName });
+      }
+    
+      if (minPrice !== undefined) {
+        dataQuery.andWhere('product.price >= :minPrice', { minPrice });
+      }
+    
+      if (maxPrice !== undefined) {
+        dataQuery.andWhere('product.price <= :maxPrice', { maxPrice });
+      }
     
       Object.entries(attributes).forEach(([name, values]) => {
         const valuesArray = Array.isArray(values) ? values : [values];
@@ -52,36 +75,43 @@ export class ProductsService {
           AND pav.value IN (:...${paramName})
         )`;
     
-        countQuery.andWhere(attributeCondition, {
-          [`${name}_name`]: name,
-          [paramName]: valuesArray
-        });
-    
         dataQuery.andWhere(attributeCondition, {
           [`${name}_name`]: name,
-          [paramName]: valuesArray
+          [paramName]: valuesArray,
         });
       });
     
-      const total = await countQuery.getCount();
-    
-      const products = await dataQuery
+      const allProducts = await dataQuery
         .orderBy('product.id', 'ASC')
-        .skip((page - 1) * limit)
-        .take(limit)
         .getMany();
     
-      const formattedProducts = products.map(product => {
+      const filteredProducts = searchQuery
+        ? allProducts.filter((product) => {
+            const query = searchQuery.toLowerCase();
+            return (
+              product.name.toLowerCase().includes(query) ||
+              product.category.category_name.toLowerCase().includes(query) ||
+              product.attributeValue.some(pav =>
+                pav.value.toLowerCase().includes(query)
+              )
+            );
+          })
+        : allProducts;
+    
+      const total = filteredProducts.length;
+      const paginated = filteredProducts.slice((page - 1) * limit, page * limit);
+    
+      const formattedProducts = paginated.map(product => {
         const uniqueAttributes = [];
         const seenAttributes = new Set();
-        
+    
         product.attributeValue.forEach(pav => {
           const attrKey = `${pav.attribute.attribute_name}_${pav.value}`;
           if (!seenAttributes.has(attrKey)) {
             seenAttributes.add(attrKey);
             uniqueAttributes.push({
               attribute_name: pav.attribute.attribute_name,
-              value: pav.value
+              value: pav.value,
             });
           }
         });
@@ -96,8 +126,8 @@ export class ProductsService {
           images: product.images.map(image => ({
             id: image.id,
             imageUrl: image.imageUrl,
-            numer: image.numer
-          }))
+            numer: image.numer,
+          })),
         };
       });
     
@@ -109,6 +139,7 @@ export class ProductsService {
         data: formattedProducts,
       };
     }
+    
     findAll(): Promise<Product[]> {
       return this.productRepository.find({ relations: ['attributeValue','category','images' ] });
     } 
@@ -119,7 +150,8 @@ export class ProductsService {
           'category',
           'attributeValue',
           'attributeValue.attribute',
-          'images'
+          'images',
+          'comments'
         ]
       });
     
@@ -152,6 +184,11 @@ export class ProductsService {
           id: image.id,
           imageUrl: image.imageUrl,
           numer: image.numer
+        })),
+        comments: product.comments.map(comment => ({
+          id: comment.id,
+          raiting: comment.rating,
+          context: comment.content
         }))
       };
     }
@@ -309,7 +346,38 @@ export class ProductsService {
     create(product: Partial<Product>): Promise<Product> {
       return this.productRepository.save(product);
     }
-  
+    async getSearchSuggestions(query: string): Promise<string[]> {
+      const rawResults = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoin('product.category', 'category')
+        .leftJoin('product.attributeValue', 'pav')
+        .leftJoin('pav.attribute', 'attribute')
+        .select([
+          'product.name AS productName',
+          'pav.value AS attributeValue',
+          'category.category_name AS categoryName',
+        ])
+        .where('LOWER(product.name) LIKE :query', { query: `%${query.toLowerCase()}%` })
+        .orWhere('LOWER(pav.value) LIKE :query', { query: `%${query.toLowerCase()}%` })
+        .orWhere('LOWER(category.category_name) LIKE :query', { query: `%${query.toLowerCase()}%` })
+        .getRawMany();
+    
+      const suggestions = new Set<string>();
+    
+      rawResults.forEach((row) => {
+        if (row.productName && row.productName.toLowerCase().includes(query.toLowerCase())) {
+          suggestions.add(row.productName);
+        }
+        if (row.attributeValue && row.attributeValue.toLowerCase().includes(query.toLowerCase())) {
+          suggestions.add(row.attributeValue);
+        }
+        if (row.categoryName && row.categoryName.toLowerCase().includes(query.toLowerCase())) {
+          suggestions.add(row.categoryName);
+        }
+      });
+    
+      return Array.from(suggestions).slice(0, 10);
+    }
     async update(id: number, product: Partial<Product>): Promise<Product> {
       await this.productRepository.update(id, product);
       return this.productRepository.findOne({ where: { id: id } });

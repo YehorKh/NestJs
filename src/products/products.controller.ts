@@ -11,44 +11,38 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class ProductsController {
     constructor(private readonly productsService: ProductsService,
     ) {} 
-    @Get()
+    @Get('suggestions')
+async getSuggestions(@Query('q') query: string) {
+  if (!query || query.trim() === '') return [];
+  return this.productsService.getSearchSuggestions(query);
+}
+@Get()
+@ApiQuery({ name: 'searchQuery', required: false, type: String, example: '' })
+@ApiQuery({ name: 'category', required: false, type: String, example: 'PC' })
 @ApiQuery({ 
-  name: 'category', 
-  type: String, 
-  required: true, 
-  example: 'PC',
-})
-@ApiQuery({ 
-  name: 'attributes', 
-  type: String, 
-  required: false, 
+  name: 'attributes',
+  type: String,
+  required: false,
   example: '{"ram":["16 Gb","32 Gb"],"color":["Black","White"],"gpu":["GeForce RTX 3080","GeForce RTX 4060"]}',
-  description: 'JSON-строка с атрибутами' 
+  description: 'JSON attributes'
 })
-@ApiQuery({
-  name: 'page',
-  required: false,
-  type: Number,
-  example: 1,
-})
-@ApiQuery({
-  name: 'limit',
-  required: false,
-  type: Number,
-  example: 10,
-  description: 'Количество элементов на странице'
-})
+@ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+@ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+@ApiQuery({ name: 'minPrice', required: false, type: Number, example: 1000 })
+@ApiQuery({ name: 'maxPrice', required: false, type: Number, example: 115000 })
 async filterProducts(
+  @Query('searchQuery') searchQuery: string,
   @Query('category') category: string,
-  @Query('attributes') attributes?: string ,
+  @Query('attributes') attributes?: string,
+  @Query('minPrice') minPrice?: number,
+  @Query('maxPrice') maxPrice?: number,
   @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-  @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 1
+  @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10
 ) {
   try {
     const parsedAttributes = attributes ? JSON.parse(attributes) : {};
-    
+
     const normalizedAttributes: Record<string, string[]> = {};
-    
     for (const [key, value] of Object.entries(parsedAttributes)) {
       if (Array.isArray(value)) {
         normalizedAttributes[key] = value.map(v => String(v));
@@ -57,11 +51,20 @@ async filterProducts(
       }
     }
 
-    return this.productsService.filterProducts(category, normalizedAttributes,page,limit);
+    return this.productsService.filterProducts(
+      category,
+      normalizedAttributes,
+      page,
+      limit,
+      searchQuery,
+      minPrice,
+      maxPrice
+    );
   } catch (error) {
     throw new BadRequestException('Неверный формат attributes JSON-строка.');
   }
 }
+
     // @Get()
     // findAll(): Promise<Product[]> {
     //   return this.productsService.findAll();
@@ -136,7 +139,7 @@ async filterProducts(
       }
     }
     
-  
+    
     @Delete(':id')
     remove(@Param('id') id: number): Promise<void> {
       return this.productsService.remove(id);

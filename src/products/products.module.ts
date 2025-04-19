@@ -10,9 +10,9 @@ import { ContentService } from 'src/content/content.service';
 import { Category } from 'src/category/entities/category.entity';
 import { Attribute } from 'src/attribute/entities/attribute.entity';
 import { ProductAttributeValue } from 'src/product-attribute-value/entities/product-attribute-value.entity';
-
+import { Comment } from 'src/comment/entities/comment.entity';
 @Module({
-    imports: [TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue])],
+    imports: [TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Comment])],
     controllers: [ProductsController],
     providers: [ProductsService],
 })
