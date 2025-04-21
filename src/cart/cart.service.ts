@@ -33,15 +33,18 @@ export class CartService {
  }
 
   async getCart(user: User) {
-   warn(user)
+   //warn(user)
     return this.cartRepository.find({
       where: { user: { id: user.id } },
       relations: ['product'],
     });
   }
 
-  async removeFromCart(user: User, productId: number) {
-    return this.cartRepository.delete({ user: { id: user.id }, product: { id: productId } });
+  async removeFromCart(userId: number, productId: number) {
+    await this.cartRepository.delete({ 
+      user: { id: userId }, 
+      product: { id: productId } 
+    });
   }
 
   async clearCart(user: User) {

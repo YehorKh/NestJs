@@ -32,6 +32,12 @@ let UsersController = class UsersController {
     remove(id) {
         return this.usersService.remove(+id);
     }
+    async updateShippingAddress(userId, updateShippingAddressDto) {
+        return this.usersService.updateShippingAddress(userId, updateShippingAddressDto.address);
+    }
+    async updatePhoneNumber(userId, updatePhoneNumberDto) {
+        return this.usersService.updatePhoneNumber(userId, updatePhoneNumberDto.phoneNumber);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -62,6 +68,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Patch)(':id/shipping-address'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateShippingAddressDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateShippingAddress", null);
+__decorate([
+    (0, common_1.Patch)(':id/phone-number'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdatePhoneNumberDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updatePhoneNumber", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

@@ -37,7 +37,10 @@ let UsersService = class UsersService {
         return await this.userRepository.find();
     }
     async findOne(id) {
-        return await this.userRepository.findOne({ where: { id } });
+        return await this.userRepository.findOne({
+            where: { id },
+            relations: ['cart', 'orders']
+        });
     }
     async update(id, updateUserDto) {
         await this.userRepository.update(id, updateUserDto);
@@ -46,6 +49,14 @@ let UsersService = class UsersService {
     async remove(id) {
         await this.verificationRepo.delete({ email: (await this.userRepository.findOne({ where: { id } })).email });
         await this.userRepository.delete(id);
+    }
+    async updateShippingAddress(userId, address) {
+        await this.userRepository.update(userId, { defaultShippingAddress: address });
+        return await this.userRepository.findOne({ where: { id: userId } });
+    }
+    async updatePhoneNumber(userId, phoneNumber) {
+        await this.userRepository.update(userId, { phoneNumber });
+        return await this.userRepository.findOne({ where: { id: userId } });
     }
 };
 exports.UsersService = UsersService;

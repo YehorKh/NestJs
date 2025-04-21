@@ -14,6 +14,7 @@ const swagger_1 = require("@nestjs/swagger");
 const cart_entity_1 = require("../../cart/entities/cart.entity");
 const typeorm_1 = require("typeorm");
 const comment_entity_1 = require("../../comment/entities/comment.entity");
+const order_entity_1 = require("../../order/entities/order.entity");
 let User = class User {
 };
 exports.User = User;
@@ -55,6 +56,18 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.user),
     __metadata("design:type", Array)
 ], User.prototype, "comments", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => order_entity_1.Order, (order) => order.user),
+    __metadata("design:type", Array)
+], User.prototype, "orders", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "defaultShippingAddress", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "phoneNumber", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

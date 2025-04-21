@@ -1,21 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import Stripe from 'stripe';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Payment } from './entities/payment.enitiy';
+import { Order } from 'src/order/entities/order.entity'; 
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
+  constructor(
+    @InjectRepository(Payment)
+    private paymentRepository: Repository<Payment>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+  ) {}
 
-  constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-02-24.acacia',
+  async createPaymentRecord(order: Order, paymentData: any): Promise<Payment> {
+    const payment = this.paymentRepository.create({
+      order,
+      amount: paymentData.amount,
+      currency: paymentData.currency,
+      status: paymentData.status,
+      paymentIntentId: paymentData.paymentIntentId,
     });
+    
+    return this.paymentRepository.save(payment);
   }
 
-  async createPaymentIntent(amount: number, currency: string) {
-    return this.stripe.paymentIntents.create({
-      amount: amount * 100, 
-      currency,
-      payment_method_types: ['card'],
-    });
+  async updatePaymentStatus(paymentIntentId: string, status: string): Promise<void> {
+    await this.paymentRepository.update(
+      { paymentIntentId },
+      { status },
+    );
   }
+  
 }

@@ -45,6 +45,16 @@ import { EmailVerification } from './verification/entities/verification.entity';
 import { CommentService } from './comment/comment.service';
 import { CommentModule } from './comment/comment.module';
 import { Comment } from './comment/entities/comment.entity';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order/entities/orderitem.entity';
+import { Payment } from './payments/entities/payment.enitiy';
+import { OrdersService } from './order/order.service';
+import { OrdersController } from './order/order.controller';
+import { StripeService } from './stripe/stripe.service';
+import { PaymentsService } from './payments/payments.service';
+import { StripeModule } from './stripe/stripe.module';
+import { OrdersModule } from './order/order.module';
+import { PaymentsController } from './payments/payments.controller';
 
 
 
@@ -62,7 +72,7 @@ import { Comment } from './comment/entities/comment.entity';
       username: configService.get<string>('DB_USERNAME'),
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
-      entities: [User,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage,EmailVerification,Comment],
+      entities: [User,OrderItem,Payment,Order,Product,CartItem,ProductImage,Category,Attribute,ProductAttributeValue,CategoryAttribute,CategoryImage,EmailVerification,Comment],
       synchronize: true,
     }),
   }),
@@ -80,12 +90,15 @@ import { Comment } from './comment/entities/comment.entity';
     inject: [ConfigService],
   }),
 
+  OrdersModule,
   PaymentsModule,
+  StripeModule,
+  CartModule,
 
-  TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),TypeOrmModule.forFeature([Comment]),
-  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule, CommentModule],
-  controllers: [AppController,UsersController, ProductAttributeValueController,CategoryImageController, ProductImageController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService, CommentService],
+  TypeOrmModule.forFeature([Payment]),TypeOrmModule.forFeature([OrderItem]),TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),TypeOrmModule.forFeature([Comment]),TypeOrmModule.forFeature([Order]),
+  UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule, CommentModule, StripeModule, OrdersModule],
+  controllers: [AppController,UsersController, ProductAttributeValueController,CategoryImageController, ProductImageController, OrdersController,PaymentsController],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService, CommentService, OrdersService, StripeService,PaymentsService],
   
 })
 export class AppModule {}

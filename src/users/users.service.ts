@@ -29,7 +29,10 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User> {
-    return await this.userRepository.findOne({ where: { id } });
+    return await this.userRepository.findOne({ 
+      where: { id },
+      relations: ['cart', 'orders'] 
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -40,5 +43,14 @@ export class UsersService {
   async remove(id: number): Promise<void> {
     await this.verificationRepo.delete({email:(await this.userRepository.findOne({ where: { id } })).email})
     await this.userRepository.delete(id)
+  }
+  async updateShippingAddress(userId: number, address: string): Promise<User> {
+    await this.userRepository.update(userId, { defaultShippingAddress: address });
+    return await this.userRepository.findOne({ where: { id: userId } });
+  }
+
+  async updatePhoneNumber(userId: number, phoneNumber: string): Promise<User> {
+    await this.userRepository.update(userId, { phoneNumber });
+    return await this.userRepository.findOne({ where: { id: userId } });
   }
 }

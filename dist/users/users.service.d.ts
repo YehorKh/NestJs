@@ -15,4 +15,6 @@ export declare class UsersService {
     findOne(id: number): Promise<User>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<User>;
     remove(id: number): Promise<void>;
+    updateShippingAddress(userId: number, address: string): Promise<User>;
+    updatePhoneNumber(userId: number, phoneNumber: string): Promise<User>;
 }
