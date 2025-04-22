@@ -21,7 +21,6 @@ export class CartController {
   @Get()
   @ApiOperation({})
   async getCart(@Req() req) {
-    warn(req.user)
     return this.cartService.getCart(req.user.id);
   }
 

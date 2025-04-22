@@ -1,31 +1,34 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from './roles.enum';
 import { ROLES_KEY } from './roles.decorator';
-import { warn } from 'console';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly logger = new Logger(RolesGuard.name);
+
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
-   const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-     context.getHandler(),
-     context.getClass(),
-   ]);
- 
-   const request = context.switchToHttp().getRequest();
-   console.log('User in RolesGuard:', request.user); 
- 
-   const { user } = request;
-   if (!user || !user.roles) {
-     console.error('User or roles not found');
-     return false; 
-   }
- 
-   const hasRole = requiredRoles.some((role) => user.roles.includes(role));
-   console.log('Has required role:' ,hasRole);
- 
-   return hasRole;
- }
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req || context.switchToHttp().getRequest();
+    this.logger.debug(`Request user: ${JSON.stringify(request.user)}`);
+
+        
+    if (!request.user) {
+      this.logger.warn('User not set yet - skipping role check');
+      return true;
+    }
+    
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!requiredRoles) {
+      return true;
+    }
+
+    return requiredRoles.some(role => request.user?.roles?.includes(role));
+  }
 }

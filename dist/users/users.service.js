@@ -19,11 +19,13 @@ const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
 const bcrypt_service_1 = require("../bcrypt/bcrypt.service");
 const verification_entity_1 = require("../verification/entities/verification.entity");
+const cart_entity_1 = require("../cart/entities/cart.entity");
 let UsersService = class UsersService {
-    constructor(userRepository, verificationRepo, bcryptService) {
+    constructor(userRepository, verificationRepo, bcryptService, cartRepository) {
         this.userRepository = userRepository;
         this.verificationRepo = verificationRepo;
         this.bcryptService = bcryptService;
+        this.cartRepository = cartRepository;
     }
     async create(createUserDto) {
         createUserDto.password = await this.bcryptService.hashPassword(createUserDto.password);
@@ -47,7 +49,15 @@ let UsersService = class UsersService {
         return await this.userRepository.findOne({ where: { id } });
     }
     async remove(id) {
-        await this.verificationRepo.delete({ email: (await this.userRepository.findOne({ where: { id } })).email });
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ['cart']
+        });
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${id} not found`);
+        }
+        await this.cartRepository.delete({ user: { id } });
+        await this.verificationRepo.delete({ email: user.email });
         await this.userRepository.delete(id);
     }
     async updateShippingAddress(userId, address) {
@@ -58,14 +68,29 @@ let UsersService = class UsersService {
         await this.userRepository.update(userId, { phoneNumber });
         return await this.userRepository.findOne({ where: { id: userId } });
     }
+    async updateName(userId, name) {
+        await this.userRepository.update(userId, { name });
+        return this.userRepository.findOne({ where: { id: userId } });
+    }
+    async updateEmail(userId, email) {
+        await this.userRepository.update(userId, { email, emailVerified: false });
+        return this.userRepository.findOne({ where: { id: userId } });
+    }
+    async updatePassword(userId, password) {
+        const hashedPassword = await this.bcryptService.hashPassword(password);
+        await this.userRepository.update(userId, { password: hashedPassword });
+        return this.userRepository.findOne({ where: { id: userId } });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(verification_entity_1.EmailVerification)),
+    __param(3, (0, typeorm_1.InjectRepository)(cart_entity_1.CartItem)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
-        bcrypt_service_1.BcryptService])
+        bcrypt_service_1.BcryptService,
+        typeorm_2.Repository])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

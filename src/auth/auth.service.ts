@@ -25,6 +25,7 @@ export class AuthService {
       private readonly verificationService: VerificationService,
    ) {}
       async register(createUserDto: CreateUserDto) {
+         createUserDto.roles = ["user"]
          this.usersService.create(createUserDto)
 
          const code = await this.verificationService.generateCode(createUserDto.email);
@@ -48,7 +49,7 @@ export class AuthService {
       if (!user.emailVerified) throw new UnauthorizedException('Email not verified. Please verify your email first.');
       
       
-      const payload = { id: user.id, name: user.name,roles:user.roles, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600 };
+      const payload = { id: user.id, name: user.name,email:user.email,roles:user.roles, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 3600,phone: user.phoneNumber, address: user.defaultShippingAddress };
       
       return {
          access_token: await this.jwtService.signAsync(payload, { secret: this.configService.get<string>('JWT_SECRET') }),

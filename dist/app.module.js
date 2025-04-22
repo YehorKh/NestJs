@@ -59,6 +59,8 @@ const payments_service_1 = require("./payments/payments.service");
 const stripe_module_1 = require("./stripe/stripe.module");
 const order_module_1 = require("./order/order.module");
 const payments_controller_1 = require("./payments/payments.controller");
+const roles_guard_1 = require("./role/roles.guard");
+const core_1 = require("@nestjs/core");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -101,7 +103,12 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([payment_enitiy_1.Payment]), typeorm_1.TypeOrmModule.forFeature([orderitem_entity_1.OrderItem]), typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]), typeorm_1.TypeOrmModule.forFeature([product_images_entity_1.ProductImage]), typeorm_1.TypeOrmModule.forFeature([attribute_entity_1.Attribute]), typeorm_1.TypeOrmModule.forFeature([product_attribute_value_entity_1.ProductAttributeValue]), typeorm_1.TypeOrmModule.forFeature([category_entity_1.Category]), typeorm_1.TypeOrmModule.forFeature([category_attribute_entity_1.CategoryAttribute]), typeorm_1.TypeOrmModule.forFeature([category_image_entity_1.CategoryImage]), typeorm_1.TypeOrmModule.forFeature([verification_entity_1.EmailVerification]), typeorm_1.TypeOrmModule.forFeature([comment_entity_1.Comment]), typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order]),
             users_module_1.UsersModule, jwt_1.JwtModule, auth_module_1.AuthModule, products_module_1.ProductsModule, cart_module_1.CartModule, payments_module_1.PaymentsModule, attribute_module_1.AttributeModule, category_module_1.CategoryModule, product_attribute_value_module_1.ProductAttributeValueModule, category_image_module_1.CategoryImageModule, comment_module_1.CommentModule, stripe_module_1.StripeModule, order_module_1.OrdersModule],
         controllers: [app_controller_1.AppController, users_controller_1.UsersController, product_attribute_value_controller_1.ProductAttributeValueController, category_image_controller_1.CategoryImageController, product_image_controller_1.ProductImageController, order_controller_1.OrdersController, payments_controller_1.PaymentsController],
-        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, product_image_service_1.ProductImageService, content_service_1.ContentService, product_attribute_value_service_1.ProductAttributeValueService, category_image_service_1.CategoryImageService, mailer_service_1.MailerService, verification_service_1.VerificationService, comment_service_1.CommentService, order_service_1.OrdersService, stripe_service_1.StripeService, payments_service_1.PaymentsService],
+        providers: [app_service_1.AppService, users_service_1.UsersService, jwt_1.JwtService, bcrypt_service_1.BcryptService, cart_service_1.CartService, product_image_service_1.ProductImageService, content_service_1.ContentService, product_attribute_value_service_1.ProductAttributeValueService, category_image_service_1.CategoryImageService, mailer_service_1.MailerService, verification_service_1.VerificationService, comment_service_1.CommentService, order_service_1.OrdersService, stripe_service_1.StripeService, payments_service_1.PaymentsService,
+            {
+                provide: core_1.APP_GUARD,
+                useClass: roles_guard_1.RolesGuard,
+            },
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

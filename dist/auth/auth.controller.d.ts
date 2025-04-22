@@ -1,7 +1,7 @@
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { MailerService } from 'src/mailer/mailer.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';
 export declare class AuthController {
     private authService;
@@ -11,7 +11,7 @@ export declare class AuthController {
         access_token: string;
     }>;
     getProfile(req: any): any;
-    register(createUserDto: CreateUserDto): Promise<{
+    register(createUserDto: RegisterUserDto): Promise<{
         message: string;
     }>;
     verify(verifyUserDto: VerifyUserDto): Promise<{

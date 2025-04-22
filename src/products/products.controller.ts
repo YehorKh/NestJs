@@ -76,8 +76,29 @@ async filterProducts(
     }
   
     @Post()
-    create(@Body() product: Product): Promise<Product> {
-      return this.productsService.create(product);
+    @ApiOperation({  })
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'Intel I5 10500h' },
+          price: { type: 'number', example: 1999.99 },
+          categoryName: { type: 'string', example: 'CPU' },
+          attributes: {
+            type: 'object',
+            additionalProperties: { type: 'string' },
+            example: { color: 'black', creator: 'Intel' }
+          }
+        }
+      }
+    })
+    async create(@Body() createProductDto: {
+      name: string;
+      price: number;
+      categoryName: string;
+      attributes: Record<string, string>;
+    }): Promise<Product> {
+      return this.productsService.createWithRelations(createProductDto);
     }
     @Put(':id')
     @ApiOperation({ 

@@ -12,8 +12,9 @@ import { BcryptService } from 'src/bcrypt/bcrypt.service';
 import { MailerService } from 'src/mailer/mailer.service';
 import { VerificationService } from 'src/verification/verification.service';
 import { EmailVerification } from 'src/verification/entities/verification.entity';
+import { CartItem } from 'src/cart/entities/cart.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([EmailVerification]),
+  imports: [TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([EmailVerification]),TypeOrmModule.forFeature([CartItem]),
   ConfigModule.forRoot({
     isGlobal: true, 
     envFilePath: '.env', 

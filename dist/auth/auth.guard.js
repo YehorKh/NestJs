@@ -13,13 +13,15 @@ exports.AuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
+const graphql_1 = require("@nestjs/graphql");
 let AuthGuard = class AuthGuard {
     constructor(jwtService, configService) {
         this.jwtService = jwtService;
         this.configService = configService;
     }
     async canActivate(context) {
-        const request = context.switchToHttp().getRequest();
+        const ctx = graphql_1.GqlExecutionContext.create(context);
+        const request = ctx.getContext().req || context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
         if (!token) {
             throw new common_1.UnauthorizedException();

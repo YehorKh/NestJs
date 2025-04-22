@@ -55,6 +55,8 @@ import { PaymentsService } from './payments/payments.service';
 import { StripeModule } from './stripe/stripe.module';
 import { OrdersModule } from './order/order.module';
 import { PaymentsController } from './payments/payments.controller';
+import { RolesGuard } from './role/roles.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 
 
@@ -98,7 +100,12 @@ import { PaymentsController } from './payments/payments.controller';
   TypeOrmModule.forFeature([Payment]),TypeOrmModule.forFeature([OrderItem]),TypeOrmModule.forFeature([User]),TypeOrmModule.forFeature([Product]),TypeOrmModule.forFeature([CartItem]),TypeOrmModule.forFeature([ProductImage]),TypeOrmModule.forFeature([Attribute]),TypeOrmModule.forFeature([ProductAttributeValue]),TypeOrmModule.forFeature([Category]),TypeOrmModule.forFeature([CategoryAttribute]),TypeOrmModule.forFeature([CategoryImage]),TypeOrmModule.forFeature([EmailVerification]),TypeOrmModule.forFeature([Comment]),TypeOrmModule.forFeature([Order]),
   UsersModule, JwtModule, AuthModule, ProductsModule, CartModule, PaymentsModule,  AttributeModule, CategoryModule, ProductAttributeValueModule, CategoryImageModule, CommentModule, StripeModule, OrdersModule],
   controllers: [AppController,UsersController, ProductAttributeValueController,CategoryImageController, ProductImageController, OrdersController,PaymentsController],
-  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService, CommentService, OrdersService, StripeService,PaymentsService],
+  providers: [AppService,UsersService,JwtService,BcryptService,CartService,ProductImageService, ContentService, ProductAttributeValueService, CategoryImageService, MailerService, VerificationService, CommentService, OrdersService, StripeService,PaymentsService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
   
 })
 export class AppModule {}

@@ -12,6 +12,7 @@ import { ProductAttributeValue } from 'src/product-attribute-value/entities/prod
 import { Category } from 'src/category/entities/category.entity';
 import { Attribute } from 'src/attribute/entities/attribute.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
+import { CategoryAttribute } from 'src/category-attribute/entities/category-attribute.entity';
 @Injectable()
 export class ProductsService {
     constructor(
@@ -20,7 +21,7 @@ export class ProductsService {
         @InjectRepository(ProductAttributeValue) private productAttributeValueRepository: Repository<ProductAttributeValue>,
         @InjectRepository(Attribute) private attributeRepository: Repository<Attribute>,
         @InjectRepository(Category) private categoryRepository: Repository<Category>,
-        @InjectRepository(Comment) private commentRepository: Repository<Comment>,
+        @InjectRepository(CategoryAttribute) private categoryAttributeRepository: Repository<CategoryAttribute>,
     ) {}
     
 
@@ -345,6 +346,89 @@ export class ProductsService {
     }
     create(product: Partial<Product>): Promise<Product> {
       return this.productRepository.save(product);
+    }
+    async createWithRelations(createProductDto: {
+      name: string;
+      price: number;
+      categoryName: string;
+      attributes: Record<string, string>;
+    }): Promise<Product> {
+      // 1. Находим или создаем категорию
+      let category = await this.categoryRepository.findOne({
+        where: { category_name: createProductDto.categoryName }
+      });
+    
+      if (!category) {
+        category = this.categoryRepository.create({
+          category_name: createProductDto.categoryName
+        });
+        category = await this.categoryRepository.save(category);
+      }
+    
+      // 2. Создаем и сохраняем продукт
+      const product = this.productRepository.create({
+        name: createProductDto.name,
+        price: createProductDto.price,
+        category
+      });
+      await this.productRepository.save(product);
+    
+      // 3. Обрабатываем атрибуты
+      if (createProductDto.attributes && Object.keys(createProductDto.attributes).length > 0) {
+        const productAttributeValues = await Promise.all(
+          Object.entries(createProductDto.attributes).map(async ([attributeName, value]) => {
+            // Находим или создаем атрибут
+            let attribute = await this.attributeRepository.findOne({
+              where: { attribute_name: attributeName }
+            });
+    
+            if (!attribute) {
+              attribute = this.attributeRepository.create({
+                attribute_name: attributeName
+              });
+              attribute = await this.attributeRepository.save(attribute);
+    
+              // Создаем связь категории с атрибутом
+              const categoryAttribute = this.categoryAttributeRepository.create({
+                category,
+                attribute
+              });
+              await this.categoryAttributeRepository.save(categoryAttribute);
+            } else {
+              // Проверяем связь атрибута с категорией
+              const existingRelation = await this.categoryAttributeRepository.findOne({
+                where: {
+                  category: { id: category.id },
+                  attribute: { id: attribute.id }
+                }
+              });
+    
+              if (!existingRelation) {
+                const categoryAttribute = this.categoryAttributeRepository.create({
+                  category,
+                  attribute
+                });
+                await this.categoryAttributeRepository.save(categoryAttribute);
+              }
+            }
+    
+            // Создаем значение атрибута для продукта
+            return this.productAttributeValueRepository.save(
+              this.productAttributeValueRepository.create({
+                product,
+                attribute,
+                value
+              })
+            );
+          })
+        );
+    
+        // Обновляем продукт с атрибутами
+        product.attributeValue = productAttributeValues;
+        return this.productRepository.save(product);
+      }
+    
+      return product;
     }
     async getSearchSuggestions(query: string): Promise<string[]> {
       const rawResults = await this.productRepository

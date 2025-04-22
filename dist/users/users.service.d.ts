@@ -4,11 +4,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from '../bcrypt/bcrypt.service';
 import { EmailVerification } from 'src/verification/entities/verification.entity';
+import { CartItem } from 'src/cart/entities/cart.entity';
 export declare class UsersService {
     private readonly userRepository;
     private verificationRepo;
     private readonly bcryptService;
-    constructor(userRepository: Repository<User>, verificationRepo: Repository<EmailVerification>, bcryptService: BcryptService);
+    private cartRepository;
+    constructor(userRepository: Repository<User>, verificationRepo: Repository<EmailVerification>, bcryptService: BcryptService, cartRepository: Repository<CartItem>);
     create(createUserDto: CreateUserDto): Promise<User>;
     findOneByName(name: string): Promise<User>;
     findAll(): Promise<User[]>;
@@ -17,4 +19,7 @@ export declare class UsersService {
     remove(id: number): Promise<void>;
     updateShippingAddress(userId: number, address: string): Promise<User>;
     updatePhoneNumber(userId: number, phoneNumber: string): Promise<User>;
+    updateName(userId: number, name: string): Promise<User>;
+    updateEmail(userId: number, email: string): Promise<User>;
+    updatePassword(userId: number, password: string): Promise<User>;
 }

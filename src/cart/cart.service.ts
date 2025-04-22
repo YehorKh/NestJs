@@ -32,10 +32,9 @@ export class CartService {
    return this.cartRepository.save(cartItem);
  }
 
-  async getCart(user: User) {
-   //warn(user)
+  async getCart(user: number) {
     return this.cartRepository.find({
-      where: { user: { id: user.id } },
+      where: { user: { id: user } },
       relations: ['product'],
     });
   }

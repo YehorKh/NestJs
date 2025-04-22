@@ -20,12 +20,13 @@ const bcrypt_service_1 = require("../bcrypt/bcrypt.service");
 const mailer_service_1 = require("../mailer/mailer.service");
 const verification_service_1 = require("../verification/verification.service");
 const verification_entity_1 = require("../verification/entities/verification.entity");
+const cart_entity_1 = require("../cart/entities/cart.entity");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([verification_entity_1.EmailVerification]),
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]), typeorm_1.TypeOrmModule.forFeature([verification_entity_1.EmailVerification]), typeorm_1.TypeOrmModule.forFeature([cart_entity_1.CartItem]),
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',

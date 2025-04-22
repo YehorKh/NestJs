@@ -18,7 +18,7 @@ import { RolesGuard } from '../role/roles.guard';
 import { Role } from '../role/roles.enum';
 import { Roles } from 'src/role/roles.decorator';
 import { MailerService } from 'src/mailer/mailer.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto, RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { warn } from 'console';
 import { VerifyUserDto } from './dto/verify-user.dto';
 @Controller('auth')
@@ -28,6 +28,7 @@ export class AuthController {
    ) {}
    @HttpCode(HttpStatus.OK)
    @Post('login')
+   
    signIn(@Body() userLoginDto: LoginUserDto) {
    return this.authService.signIn(userLoginDto);
    }
@@ -39,7 +40,7 @@ export class AuthController {
    }
 
    @Post("register")
-   register(@Body() createUserDto: CreateUserDto) {
+   register(@Body() createUserDto: RegisterUserDto) {
       return this.authService.register(createUserDto);
     }
 

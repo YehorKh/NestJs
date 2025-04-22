@@ -8,34 +8,38 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var RolesGuard_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const roles_decorator_1 = require("./roles.decorator");
-let RolesGuard = class RolesGuard {
+const graphql_1 = require("@nestjs/graphql");
+let RolesGuard = RolesGuard_1 = class RolesGuard {
     constructor(reflector) {
         this.reflector = reflector;
+        this.logger = new common_1.Logger(RolesGuard_1.name);
     }
-    canActivate(context) {
+    async canActivate(context) {
+        const ctx = graphql_1.GqlExecutionContext.create(context);
+        const request = ctx.getContext().req || context.switchToHttp().getRequest();
+        this.logger.debug(`Request user: ${JSON.stringify(request.user)}`);
+        if (!request.user) {
+            this.logger.warn('User not set yet - skipping role check');
+            return true;
+        }
         const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
-        const request = context.switchToHttp().getRequest();
-        console.log('User in RolesGuard:', request.user);
-        const { user } = request;
-        if (!user || !user.roles) {
-            console.error('User or roles not found');
-            return false;
+        if (!requiredRoles) {
+            return true;
         }
-        const hasRole = requiredRoles.some((role) => user.roles.includes(role));
-        console.log('Has required role:', hasRole);
-        return hasRole;
+        return requiredRoles.some(role => request.user?.roles?.includes(role));
     }
 };
 exports.RolesGuard = RolesGuard;
-exports.RolesGuard = RolesGuard = __decorate([
+exports.RolesGuard = RolesGuard = RolesGuard_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [core_1.Reflector])
 ], RolesGuard);
